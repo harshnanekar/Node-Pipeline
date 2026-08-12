@@ -3,6 +3,9 @@ name: NODE_PIPELINE
 on:
   push
 
+env:
+  NODE_ENV: development-test
+
 jobs:
     Run:
         runs-on: ubuntu-latest
