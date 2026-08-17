@@ -7,10 +7,13 @@ on:
       - completed
 
 env:
-  NODE_ENV: Workflow level
+  NODE_ENV: "Workflow level"
 
 jobs:
     Run:
+
+        env:
+            NODE_ENV: "Job level"
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Code
