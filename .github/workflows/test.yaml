@@ -2,7 +2,7 @@ name: NODE_PIPELINE
 
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["NODE_PIPELINE"]
     types:
       - completed
 
