@@ -31,6 +31,8 @@ jobs:
             #   run: npm test
 
             - name: Run Project Test
+              env:
+                  NODE_ENV: "Step level"
               run: echo "$NODE_ENV"
               
 
