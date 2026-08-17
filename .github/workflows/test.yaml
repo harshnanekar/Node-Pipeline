@@ -4,7 +4,7 @@ on:
   push
 
 env:
-  NODE_ENV: development-test
+  NODE_ENV: Workflow level
 
 jobs:
     Run:
@@ -24,8 +24,8 @@ jobs:
             # - name: Run Tests
             #   run: npm test
 
-            # - name: Run Project
-            #   run: node index.js
+            - name: Run Project
+              run: echo "${NODE_ENV}"
               
 
 
