@@ -27,7 +27,7 @@ jobs:
             # - name: Run Tests
             #   run: npm test
 
-            - name: Run Project
+            - name: Run Project Test
               run: echo "$NODE_ENV"
               
 
