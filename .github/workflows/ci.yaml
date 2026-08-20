@@ -5,6 +5,7 @@ on:
 
 env:
   NODE_ENV: development-test
+  API_SECRET: "${{ secrets.API_SECRET }}"
 
 jobs:
     Run:
@@ -24,8 +25,8 @@ jobs:
             # - name: Run Tests
             #   run: npm test
 
-            # - name: Run Project
-            #   run: node index.js
+            - name: Run Project
+              run: node index.js
               
 
 
