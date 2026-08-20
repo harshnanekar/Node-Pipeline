@@ -5,7 +5,7 @@ on:
 
 env:
   NODE_ENV: development-test
-  API_SECRET: ${{ secrets.API_KEY }}
+  API_KEY: ${{ secrets.API_KEY }}
 
 jobs:
     Run:
