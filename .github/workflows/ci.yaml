@@ -32,6 +32,10 @@ jobs:
             - name: Run Project
               run: echo "${{ github.event.sender.name }}"
 
+            - name: Test success
+              if: ${{ success() }}
+              run: echo "All previous step executed properly"
+
             
               
 
