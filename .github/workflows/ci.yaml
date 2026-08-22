@@ -4,7 +4,7 @@ on:
   push
 
 env:
-  NODE_ENV: development-test
+  NODE_ENV: development
   API_KEY: ${{ secrets.API_KEY }}
 
 jobs:
