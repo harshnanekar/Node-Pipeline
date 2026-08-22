@@ -36,8 +36,8 @@ jobs:
               if: ${{ success() }}
               run: echo "All previous step executed properly"
 
-            - name: Intentional Build
-              run: npm run build
+            - name: Intentional Test Failure
+              run: npm test
 
             - name: Test failure
               if: ${{failure()}}
