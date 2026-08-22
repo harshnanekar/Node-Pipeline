@@ -36,12 +36,19 @@ jobs:
               if: ${{ success() }}
               run: echo "All previous step executed properly"
 
-            - name: Intentional Test Failure
-              run: npm test
+            # - name: Intentional Test Failure
+            #   run: npm test
 
             - name: Test failure
               if: ${{failure()}}
               run: echo "All previous job failed"
+
+            - name: Run application
+              run: node index.js
+
+            - name: Test cancel workflow
+              if: ${{cancelled()}}
+              run: echo "Workflow cancelled"
 
             
               
