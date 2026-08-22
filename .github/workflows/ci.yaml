@@ -25,8 +25,13 @@ jobs:
             # - name: Run Tests
             #   run: npm test
 
+            - name: Check If Condition
+              if: ${{ env.NODE_ENV == 'development-test' }}
+              run: echo "If condition satisfied"
             - name: Run Project
               run: echo "${{ github.event.sender.name }}"
+
+            
               
 
 
