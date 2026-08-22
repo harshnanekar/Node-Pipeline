@@ -4,7 +4,7 @@ on:
   push
 
 env:
-  NODE_ENV: development
+  NODE_ENV: development-test
   API_KEY: ${{ secrets.API_KEY }}
 
 jobs:
@@ -26,8 +26,9 @@ jobs:
             #   run: npm test
 
             - name: Check If Condition
-              if: ${{ env.NODE_ENV == 'development-test' }}
+              if: ${{ env.NODE_ENV == 'development-test' && github.event_name == 'push' }}
               run: echo "If condition satisfied"
+
             - name: Run Project
               run: echo "${{ github.event.sender.name }}"
 
