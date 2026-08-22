@@ -26,7 +26,7 @@ jobs:
             #   run: npm test
 
             - name: Check If Condition
-              if: ${{ env.NODE_ENV == 'development-test' && github.event_name == 'push' }}
+              if: ${{ env.NODE_ENV == 'development' && github.event_name == 'push' }}
               run: echo "If condition satisfied"
 
             - name: Run Project
