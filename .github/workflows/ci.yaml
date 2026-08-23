@@ -30,7 +30,7 @@ jobs:
               id: version
               run: |
                 VERSION=$(node -p "require('./package.json').version") 
-                echo "If condition satisfied version=$VERSION" >> $GITHUB_OUTPUT
+                echo "version=$VERSION" >> $GITHUB_OUTPUT
 
             - name: Run Project
               run: echo "${{ github.event.sender.name }} ${{steps.version.outputs.version}}"
