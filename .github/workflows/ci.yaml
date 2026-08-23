@@ -27,18 +27,21 @@ jobs:
 
             - name: Check If Condition
               if: ${{ env.NODE_ENV == 'development' && github.event_name == 'push' }}
-              run: echo "If condition satisfied"
+              id: version
+              run: |
+                VERSION=$(node -p "require('./package.json').version") 
+                echo "If condition satisfied version=$VERSION" >> $GITHUB_OUTPUT
 
             - name: Run Project
-              run: echo "${{ github.event.sender.name }}"
+              run: echo "${{ github.event.sender.name }} ${{steps.version.outputs.version}}"
 
             - name: Test success
               if: ${{ success() }}
               run: echo "All previous step executed properly"
 
-            - name: Intentional Test Failure
-              run: npm test
-              continue-on-error: true
+            # - name: Intentional Test Failure
+            #   run: npm test
+            #   continue-on-error: true
 
             - name: Test failure
               if: ${{failure()}}
