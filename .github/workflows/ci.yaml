@@ -1,71 +1,61 @@
 name: NODE_PIPELINE
 
 on:
-  push
+  push:
 
 env:
   NODE_ENV: development-test
   API_KEY: ${{ secrets.API_KEY }}
 
 jobs:
-    Run:
-        runs-on: ubuntu-latest
-        outputs:
-          message: "This is a message from the Run job"
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v4
+  Run:
+    runs-on: ubuntu-latest
 
-            - name: Setup Node
-              uses: actions/setup-node@v4
-              with:
-                node-version: 20
+    outputs:
+      message: ${{ steps.job_output.outputs.message }}
 
-            - name: Install Dependencies
-              run: npm install
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-            # - name: Run Tests
-            #   run: npm test
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-            - name: Check If Condition
-              if: ${{ env.NODE_ENV == 'development-test' && github.event_name == 'push' }}
-              id: version
-              run: |
-                VERSION=$(node -p "require('./package.json').version") 
-                echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Install Dependencies
+        run: npm install
 
-            - name: Run Project
-              run: echo "${{ github.event.sender.name }} ${{steps.version.outputs.version}}"
+      - name: Create Job Output
+        id: job_output
+        run: echo "message=This is a message from the Run job" >> "$GITHUB_OUTPUT"
 
-            - name: Test success
-              if: ${{ success() }}
-              run: echo "All previous step executed properly"
+      - name: Check If Condition
+        if: ${{ env.NODE_ENV == 'development-test' && github.event_name == 'push' }}
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-            # - name: Intentional Test Failure
-            #   run: npm test
-            #   continue-on-error: true
+      - name: Run Project
+        run: echo "${{ github.event.sender.name }} ${{ steps.version.outputs.version }}"
 
-            - name: Test failure
-              if: ${{failure()}}
-              run: echo "All previous job failed"
+      - name: Test success
+        if: ${{ success() }}
+        run: echo "All previous steps executed properly"
 
-            # - name: Run application
-            #   run: node index.js
+      - name: Test failure
+        if: ${{ failure() }}
+        run: echo "A previous step failed"
 
-            - name: Test cancel workflow
-              if: ${{cancelled()}}
-              run: echo "Workflow cancelled"
+      - name: Test cancel workflow
+        if: ${{ cancelled() }}
+        run: echo "Workflow cancelled"
 
-    Test-Build:
-        needs: Run
-        runs-on: ubuntu-latest      
-      
-        steps:
-            - name: Test Job Output
-              run: 'echo "Message from Run job: ${{ needs.Run.outputs.message }}"'
+  Test-Build:
+    needs: Run
+    runs-on: ubuntu-latest
 
-      
-
-
-
-            
+    steps:
+      - name: Test Job Output
+        run: 'echo "Message from Run job: ${{ needs.Run.outputs.message }}"'
