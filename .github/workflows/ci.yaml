@@ -56,13 +56,13 @@ jobs:
               if: ${{cancelled()}}
               run: echo "Workflow cancelled"
 
-      Test & Build:
-       needs: Run
-       runs-on: ubuntu-latest      
+    Test-Build:
+        needs: Run
+        runs-on: ubuntu-latest      
       
-       steps:
+        steps:
             - name: Test Job Output
-              run:echo "Message from Run job: ${{ needs.Run.outputs.message }}"
+              run: 'echo "Message from Run job: ${{ needs.Run.outputs.message }}"'
 
       
 
