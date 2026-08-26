@@ -10,6 +10,8 @@ env:
 jobs:
     Run:
         runs-on: ubuntu-latest
+        outputs:
+          message: "This is a message from the Run job"
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -54,8 +56,15 @@ jobs:
               if: ${{cancelled()}}
               run: echo "Workflow cancelled"
 
-            
-              
+      Test & Build:
+       needs: Run
+       runs-on: ubuntu-latest      
+      
+       steps:
+            - name: Test Job Output
+              run:echo "Message from Run job: ${{ needs.Run.outputs.message }}"
+
+      
 
 
 
