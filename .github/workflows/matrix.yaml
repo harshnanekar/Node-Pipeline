@@ -1,0 +1,32 @@
+name: "MATRIX_PIPELINE"
+
+on:
+  workflow_run:
+    workflows: ["NODE_PIPELINE"]
+    types:
+      - completed
+
+jobs:
+
+    Run:
+     runs-on: ubuntu-latest
+
+     strategy:
+        matrix:
+            node-versions: [18, 19, 20]
+
+     steps:
+
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Setup Node
+          uses: actions/setup-node@v4
+          with:
+            node-version: ${{matrix.node-versions}}
+
+        - name: Check Node Version
+          run: node -v
+        
+    
+
