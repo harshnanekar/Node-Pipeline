@@ -20,6 +20,7 @@ jobs:
             
             include:
               - node-versions: 21
+              - environment: "These is node 21 version"
 
      steps:
 
@@ -30,6 +31,9 @@ jobs:
           uses: actions/setup-node@v4
           with:
             node-version: ${{matrix.node-versions}}
+
+        - name: Echo Node Version
+          run: 'echo "Environment: ${{ matrix.environment }}"'
 
         - name: Check Node Version
           run: node -v
