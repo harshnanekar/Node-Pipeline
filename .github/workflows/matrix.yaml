@@ -19,7 +19,7 @@ jobs:
               - node-versions: 18
             
             include:
-              - node-versions: [21, 22]
+              - node-versions: 21
 
      steps:
 
