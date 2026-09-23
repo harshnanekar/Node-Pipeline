@@ -15,6 +15,9 @@ jobs:
         matrix:
             node-versions: [18, 19, 20]
 
+            exclude:
+              - node-versions: 18
+
      steps:
 
         - name: Checkout Code
