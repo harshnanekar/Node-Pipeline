@@ -12,6 +12,7 @@ jobs:
      runs-on: ubuntu-latest
 
      strategy:
+        fail-fast: true
         matrix:
             node-versions: [18, 19, 20]
 
@@ -33,7 +34,13 @@ jobs:
             node-version: ${{matrix.node-versions}}
 
         - name: Echo Node Version
-          run: 'echo "Environment: ${{ matrix.environment }}"'
+          run: |
+              echo "Environment: ${{ matrix.environment }}"
+              
+              if [ "${{ matrix.node-version }}" = "18" ]; then
+                echo "Intentionally failing Node 18"
+                exit 1
+              fi
 
         - name: Check Node Version
           run: node -v
