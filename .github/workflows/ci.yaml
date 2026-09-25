@@ -39,7 +39,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Run Project
-        run: echo "${{ github.event.sender.name }} ${{ steps.version.outputs.version }}"
+        run: echo "${{ github.event.sender.name }} test ${{ steps.version.outputs.version }}"
 
       - name: Test success
         if: ${{ success() }}
