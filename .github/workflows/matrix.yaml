@@ -12,7 +12,7 @@ jobs:
      runs-on: ubuntu-latest
 
      strategy:
-        fail-fast: false
+        fail-fast: true
         matrix:
             node-versions: [18, 19, 20]
 
@@ -37,8 +37,8 @@ jobs:
           run: |
               echo "Environment: ${{ matrix.environment }}"
               
-              if [ "${{ matrix.node-version }}" = "18" ]; then
-                echo "Intentionally failing Node 18"
+              if [ "${{ matrix.node-version }}" = "19" ]; then
+                echo "Intentionally failing Node 19"
                 exit 1
               fi
 
