@@ -7,7 +7,8 @@ on:
       - completed
 
 permissions: 
-    contents: read
+    # contents: read
+    contents: write
 
 jobs:
     
@@ -16,8 +17,21 @@ jobs:
         steps:
             - name: "Checkout code"
               uses: actions/checkout@v4
-            
-            - name: "Read Repository"
+
+            - name: Create file
               run: |
-                echo "Repository: ${{ github.repository }}"
-                ls -la
+               echo "Written by GitHub Actions" > token-test.txt
+
+            - name: Commit and push
+              run: |
+                git config user.name "harshnanekar"
+                git config user.email "nanekarharshal2@gmail.com"
+
+                git add token-test.txt
+                git commit -m "Test GITHUB_TOKEN write permission"
+                git push
+            
+            # - name: "Read Repository"
+            #   run: |
+            #     echo "Repository: ${{ github.repository }}"
+            #     ls -la
