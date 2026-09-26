@@ -1,0 +1,23 @@
+name: "PERMISSIONS_PIPELINE"
+
+on:
+  workflow_run:
+    workflows: ["NODE_PIPELINE"]
+    types:
+      - completed
+
+permissions: 
+    contents: read
+
+jobs:
+    
+    RUN:
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Checkout code"
+              uses: actions/checkout@v4
+            
+            - name: "Read Repository"
+              run: |
+                echo "Repository: ${{ github.repository }}"
+                ls -la
