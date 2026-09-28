@@ -53,6 +53,8 @@ jobs:
         if: ${{ cancelled() }}
         run: echo "Workflow cancelled"
 
+  
+
   Test-Build:
     needs: Run
     runs-on: ubuntu-latest
@@ -60,3 +62,6 @@ jobs:
     steps:
       - name: Test Job Output
         run: 'echo "Message from Run job: ${{ needs.Run.outputs.message }}"'
+
+  call-common:
+    uses: ./.github/workflows/common.yml

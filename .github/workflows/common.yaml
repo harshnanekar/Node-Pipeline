@@ -1,0 +1,11 @@
+name: Common Workflow
+
+on:
+  workflow_call:
+
+jobs:
+  common:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo >> "Reusable workflow"
