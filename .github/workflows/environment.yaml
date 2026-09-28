@@ -13,5 +13,11 @@ jobs:
 
         environment: production
         steps:
-          - name: Test Environment
-            run: 'echo >> "${{secrets.APP_MESSAGE}}"'  
+          - name: Check secret
+            run: |
+                if [ -n "${{ secrets.APP_MESSAGE }}" ]; then
+                echo "Secret is available"
+                else
+                echo "Secret is NOT available"
+                exit 1
+                fi
