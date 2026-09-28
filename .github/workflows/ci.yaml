@@ -64,4 +64,4 @@ jobs:
         run: 'echo "Message from Run job: ${{ needs.Run.outputs.message }}"'
 
   call-common:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/common.yaml
