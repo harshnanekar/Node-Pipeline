@@ -1,0 +1,17 @@
+name: "ENVIRONMENT_PIPELINE"
+
+on:
+  workflow_run:
+    workflows: ["NODE_PIPELINE"]
+    types:
+      - completed
+
+jobs:
+    TEST_ENVIRONMENT:
+
+        runs-on: ubuntu-latest
+
+        environment: development
+        steps:
+          - name: Test Environment
+            run: echo >> "Running development enviroment"  
