@@ -2,10 +2,18 @@ name: Common Workflow
 
 on:
   workflow_call:
+   inputs:
+     message:
+      required: true
+      type: string
 
 jobs:
   common:
     runs-on: ubuntu-latest
+ 
     steps:
       - name: Test
         run: echo >> "Reusable workflow"
+      
+      - name: Log Inputs
+        run: echo >> "My input message ${{inputs.message}}"

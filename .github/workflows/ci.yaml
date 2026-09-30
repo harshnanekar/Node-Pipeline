@@ -65,3 +65,6 @@ jobs:
 
   call-common:
     uses: ./.github/workflows/common.yaml
+
+    with:
+      message: "Hello from caller workflow"
