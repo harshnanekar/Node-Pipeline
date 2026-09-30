@@ -7,6 +7,10 @@ on:
       required: true
       type: string
 
+   secrets:
+    APP_MESSAGE:
+      required: true
+
 jobs:
   common:
     runs-on: ubuntu-latest
@@ -17,3 +21,13 @@ jobs:
       
       - name: Log Inputs
         run: echo >> "My input message ${{inputs.message}}"
+
+      - name: Check secret
+        run: |
+          if [ -n "${{ secrets.APP_SECRET }}" ]; then
+            echo "Secret is available"
+          else
+            echo "Secret is NOT available"
+            exit 1
+          fi
+        

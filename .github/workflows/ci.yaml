@@ -68,3 +68,6 @@ jobs:
 
     with:
       message: "Hello from caller workflow"
+
+    secrets:
+      APP_SECRET: ${{secrets.APP_SECRET}}
