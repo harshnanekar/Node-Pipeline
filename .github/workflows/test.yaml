@@ -17,7 +17,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Build Node
-              uses: ./.github/actions/common-actions.yaml
+              uses: ./.github/actions/action.yaml
 
             - name: Install Dependencies
               run: npm install
