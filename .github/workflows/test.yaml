@@ -20,7 +20,7 @@ jobs:
             - name: Checkout Code
               uses: actions/checkout@v4
             - name: Build Node
-              uses: ./.github/actions/action.yaml
+              uses: ./.github/actions
 
             - name: Install Dependencies
               run: npm install
