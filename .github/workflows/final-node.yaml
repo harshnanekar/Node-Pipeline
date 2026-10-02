@@ -1,0 +1,29 @@
+name: "FINAL_PIPELINE"
+
+on:
+  workflow_run:
+    workflows: ["NODE_PIPELINE"]
+    types:
+      - completed
+
+jobs:
+  Run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Run Project
+        run: echo "Running the project after NODE_PIPELINE completion"
