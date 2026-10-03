@@ -1,4 +1,4 @@
-name: "FINAL_PIPELINE"
+name: "SELF_HOSTED_PIPELINE"
 
 on:
   workflow_run:
