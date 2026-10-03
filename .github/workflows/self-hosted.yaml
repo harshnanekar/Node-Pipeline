@@ -7,14 +7,21 @@ on:
       - completed
 
 jobs:
-  test-runner:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
 
     steps:
-      - name: Check runner
+      - name: Pull latest code
         run: |
-          echo "Hello from my Ubuntu runner!"
-          whoami
-          node --version
-          npm --version
-          pwd
+          cd ~/projects/"Node Pipeline"
+          git pull origin main
+
+      - name: Install dependencies
+        run: |
+          cd ~/projects/"Node Pipeline"
+          npm ci
+
+      - name: Restart application
+        run: |
+          pm2 restart node-pipeline
