@@ -1,0 +1,20 @@
+name: "FINAL_PIPELINE"
+
+on:
+  workflow_run:
+    workflows: ["NODE_PIPELINE"]
+    types:
+      - completed
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+
+    steps:
+      - name: Check runner
+        run: |
+          echo "Hello from my Ubuntu runner!"
+          whoami
+          node --version
+          npm --version
+          pwd
