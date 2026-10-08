@@ -4,6 +4,10 @@ const app = require('express')();
 
 const PORT = process.env.PORT || 3000;
 
+app.get('/health', (req, res) => {
+  res.send('OK');
+});
+
 app.get('/', (req, res) => {
   console.log(`Environment: ${process.env.NODE_ENV}`);
   res.send('Hello World!');

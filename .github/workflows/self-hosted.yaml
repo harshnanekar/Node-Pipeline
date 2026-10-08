@@ -15,6 +15,7 @@ jobs:
       - name: Pull latest code
         run: |
           cd ~/projects/"Node Pipeline"
+          PREVIOUS_COMMIT=$(git rev-parse HEAD)
           git pull origin main
 
       - name: Install dependencies
@@ -25,3 +26,23 @@ jobs:
       - name: Restart application
         run: |
           pm2 restart node-pipeline
+
+          sleep 2
+
+      - name: Check application status
+        run: |
+
+          if curl -fsS http://localhost:3000/health; then
+            echo "Deployment successful"
+          else
+            echo "Health check failed!"
+            echo "Rolling back to $PREVIOUS_COMMIT"
+
+            git checkout "$PREVIOUS_COMMIT"
+            npm ci
+            pm2 restart node-pipeline
+
+            exit 1
+          fi
+
+    
