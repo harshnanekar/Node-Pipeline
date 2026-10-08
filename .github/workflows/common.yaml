@@ -21,7 +21,7 @@ jobs:
         run: echo >> "Reusable workflow"
       
       - name: Log Inputs
-        run: echo >> "My input message ${{inputs.message}}"
+        run: echo >> "My input message check ${{inputs.message}}"
 
       - name: Check secret
         run: |
