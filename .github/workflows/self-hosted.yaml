@@ -12,15 +12,22 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Pull latest code
+      - name: Prepare deployment
         run: |
           cd ~/projects/"Node Pipeline"
 
+          # Remember the currently deployed commit
           PREVIOUS_COMMIT=$(git rev-parse HEAD)
-
           echo "PREVIOUS_COMMIT=$PREVIOUS_COMMIT" >> "$GITHUB_ENV"
 
-          git pull origin main
+          # Remove local changes and sync with GitHub
+          git reset --hard
+          git clean -fd
+          git fetch origin main
+          git reset --hard origin/main
+
+          echo "Deployed commit:"
+          git rev-parse HEAD
 
       - name: Install dependencies
         run: |
@@ -42,9 +49,13 @@ jobs:
             echo "Health check failed!"
             echo "Rolling back to $PREVIOUS_COMMIT"
 
-            git checkout "$PREVIOUS_COMMIT"
+            git reset --hard "$PREVIOUS_COMMIT"
+
             npm ci
+
             pm2 restart node-pipeline
+
+            echo "Rollback completed."
 
             exit 1
           fi
