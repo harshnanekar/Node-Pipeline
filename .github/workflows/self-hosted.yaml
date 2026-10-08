@@ -15,7 +15,11 @@ jobs:
       - name: Pull latest code
         run: |
           cd ~/projects/"Node Pipeline"
+
           PREVIOUS_COMMIT=$(git rev-parse HEAD)
+
+          echo "PREVIOUS_COMMIT=$PREVIOUS_COMMIT" >> "$GITHUB_ENV"
+
           git pull origin main
 
       - name: Install dependencies
@@ -26,11 +30,11 @@ jobs:
       - name: Restart application
         run: |
           pm2 restart node-pipeline
-
           sleep 2
 
       - name: Check application status
         run: |
+          cd ~/projects/"Node Pipeline"
 
           if curl -fsS http://localhost:3000/health; then
             echo "Deployment successful"
@@ -44,5 +48,3 @@ jobs:
 
             exit 1
           fi
-
-    
