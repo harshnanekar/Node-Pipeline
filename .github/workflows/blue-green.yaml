@@ -38,3 +38,13 @@ jobs:
 
           echo "Green health check failed!"
           exit 1
+
+        
+      - name: Switch traffic to Green
+        run: |
+          sudo sed -i 's|proxy_pass http://127.0.0.1:3001;|proxy_pass http://127.0.0.1:3002;|' /etc/nginx/sites-available/blue-green
+
+          sudo nginx -t
+          sudo service nginx reload
+
+          echo "Traffic switched to Green!"
