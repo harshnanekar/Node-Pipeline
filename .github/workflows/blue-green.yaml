@@ -11,40 +11,101 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Detect live environment
+        id: detect
+        shell: bash
+        run: |
+          CONFIG="/etc/nginx/sites-available/blue-green"
+
+          if grep -q 'proxy_pass http://127.0.0.1:3001;' "$CONFIG"; then
+              echo "live=blue" >> "$GITHUB_OUTPUT"
+              echo "target=green" >> "$GITHUB_OUTPUT"
+              echo "port=3002" >> "$GITHUB_OUTPUT"
+          elif grep -q 'proxy_pass http://127.0.0.1:3002;' "$CONFIG"; then
+              echo "live=green" >> "$GITHUB_OUTPUT"
+              echo "target=blue" >> "$GITHUB_OUTPUT"
+              echo "port=3001" >> "$GITHUB_OUTPUT"
+          else
+              echo "Could not determine live environment!"
+              exit 1
+          fi
+
+          echo "Current live environment detected."
+          echo "Target: $(grep -E 'proxy_pass' "$CONFIG")"
+
       - name: Checkout latest code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Deploy to Green
+      - name: Deploy to inactive environment
+        shell: bash
+        env:
+          TARGET: ${{ steps.detect.outputs.target }}
+          PORT: ${{ steps.detect.outputs.port }}
         run: |
-          cd "$HOME/projects/Node Pipeline"
+          set -euo pipefail
+
+          APP_DIR="$HOME/projects/$TARGET"
+
+          cd "$APP_DIR"
           git fetch origin main
           git reset --hard origin/main
           git clean -fd
           npm ci
-          PORT=3002 APP_VERSION=green pm2 restart green --update-env
 
-      - name: Health check Green
+          APP_VERSION="$TARGET" PORT="$PORT" \
+            pm2 restart "$TARGET" --update-env
+
+      - name: Health check inactive environment
+        shell: bash
+        env:
+          PORT: ${{ steps.detect.outputs.port }}
+          TARGET: ${{ steps.detect.outputs.target }}
         run: |
+          set -euo pipefail
+
           for i in {1..10}; do
-            if curl -fsS http://localhost:3002/health; then
-              echo "Green is healthy!"
+              if curl -fsS "http://127.0.0.1:${PORT}/health" >/dev/null 2>&1; then
+                  echo "$TARGET is healthy!"
+                  exit 0
+              fi
+
+              echo "$TARGET not ready yet; retrying ($i/10)..."
+              sleep 2
+          done
+
+          echo "Health check failed. Traffic remains on the current environment."
+          exit 1
+
+      - name: Switch traffic
+        shell: bash
+        env:
+          TARGET: ${{ steps.detect.outputs.target }}
+        run: |
+          set -euo pipefail
+          sudo -n /usr/local/sbin/switch-blue-green "$TARGET"
+
+      - name: Verify live traffic
+        shell: bash
+        env:
+          TARGET: ${{ steps.detect.outputs.target }}
+          PORT: ${{ steps.detect.outputs.port }}
+        run: |
+          set -euo pipefail
+
+          for i in {1..5}; do
+            RESPONSE=$(curl -fsS http://127.0.0.1:3000/version) || {
+              sleep 2
+              continue
+            }
+
+            if echo "$RESPONSE" | grep -q "\"version\":\"$TARGET\""; then
+              echo "Traffic successfully switched to $TARGET!"
+              echo "$RESPONSE"
               exit 0
             fi
+
             sleep 2
           done
 
-          echo "Green health check failed!"
+          echo "Live traffic verification failed!"
           exit 1
-
-        
-      - name: Switch traffic to Green
-        run: |
-          sudo sed -i 's|proxy_pass http://127.0.0.1:3001;|proxy_pass http://127.0.0.1:3002;|' /etc/nginx/sites-available/blue-green
-
-          sudo nginx -t
-          sudo service nginx reload
-
-          echo "Traffic switched to Green!"
