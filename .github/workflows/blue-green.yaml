@@ -5,7 +5,10 @@ on:
     workflows: ["NODE_PIPELINE"]
     types:
       - completed
-
+concurrency:
+  group: blue-green-deploy
+  cancel-in-progress: true
+  
 jobs:
   deploy-green:
     runs-on: self-hosted
