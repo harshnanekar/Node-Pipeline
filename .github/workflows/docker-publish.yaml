@@ -31,4 +31,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/node-pipeline:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/node-pipeline:latest
