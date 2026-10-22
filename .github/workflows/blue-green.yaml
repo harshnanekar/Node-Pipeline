@@ -1,16 +1,21 @@
-name: "BLUE_GREEN_PIPELINE"
+name: BLUE_GREEN_PIPELINE
 
 on:
   workflow_run:
-    workflows: ["NODE_PIPELINE"]
-    types:
-      - completed
+    workflows: ["DOCKER_PIPELINE"]
+    types: [completed]
+    branches: [main]
+
 concurrency:
   group: blue-green-deploy
-  cancel-in-progress: true
-  
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
   deploy-green:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
 
     steps:
@@ -18,45 +23,44 @@ jobs:
         id: detect
         shell: bash
         run: |
+          set -euo pipefail
           CONFIG="/etc/nginx/sites-available/blue-green"
 
           if grep -q 'proxy_pass http://127.0.0.1:3001;' "$CONFIG"; then
-              echo "live=blue" >> "$GITHUB_OUTPUT"
-              echo "target=green" >> "$GITHUB_OUTPUT"
-              echo "port=3002" >> "$GITHUB_OUTPUT"
+            echo "live=blue" >> "$GITHUB_OUTPUT"
+            echo "target=green" >> "$GITHUB_OUTPUT"
+            echo "port=3002" >> "$GITHUB_OUTPUT"
           elif grep -q 'proxy_pass http://127.0.0.1:3002;' "$CONFIG"; then
-              echo "live=green" >> "$GITHUB_OUTPUT"
-              echo "target=blue" >> "$GITHUB_OUTPUT"
-              echo "port=3001" >> "$GITHUB_OUTPUT"
+            echo "live=green" >> "$GITHUB_OUTPUT"
+            echo "target=blue" >> "$GITHUB_OUTPUT"
+            echo "port=3001" >> "$GITHUB_OUTPUT"
           else
-              echo "Could not determine live environment!"
-              exit 1
+            echo "Could not determine live environment"
+            exit 1
           fi
 
-          echo "Current live environment detected."
-          echo "Target: $(grep -E 'proxy_pass' "$CONFIG")"
-
-      - name: Checkout latest code
-        uses: actions/checkout@v4
-
-      - name: Deploy to inactive environment
+      - name: Deploy Docker image to inactive environment
         shell: bash
         env:
           TARGET: ${{ steps.detect.outputs.target }}
           PORT: ${{ steps.detect.outputs.port }}
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
         run: |
           set -euo pipefail
 
-          APP_DIR="$HOME/projects/$TARGET"
+          IMAGE="${DOCKER_USER}/node-pipeline:${IMAGE_TAG}"
+          CONTAINER="node-pipeline-${TARGET}"
 
-          cd "$APP_DIR"
-          git fetch origin main
-          git reset --hard origin/main
-          git clean -fd
-          npm ci
+          docker pull "$IMAGE"
+          docker rm -f "$CONTAINER" 2>/dev/null || true
 
-          APP_VERSION="$TARGET" PORT="$PORT" \
-            pm2 restart "$TARGET" --update-env
+          docker run -d \
+            --name "$CONTAINER" \
+            --restart unless-stopped \
+            -p "127.0.0.1:${PORT}:3000" \
+            -e APP_VERSION="${IMAGE_TAG:0:7}" \
+            "$IMAGE"
 
       - name: Health check inactive environment
         shell: bash
@@ -66,17 +70,15 @@ jobs:
         run: |
           set -euo pipefail
 
-          for i in {1..10}; do
-              if curl -fsS "http://127.0.0.1:${PORT}/health" >/dev/null 2>&1; then
-                  echo "$TARGET is healthy!"
-                  exit 0
-              fi
-
-              echo "$TARGET not ready yet; retrying ($i/10)..."
-              sleep 2
+          for i in {1..15}; do
+            if curl -fsS "http://127.0.0.1:${PORT}/health" >/dev/null; then
+              echo "$TARGET is healthy"
+              exit 0
+            fi
+            sleep 2
           done
 
-          echo "Health check failed. Traffic remains on the current environment."
+          echo "Health check failed; traffic has not been switched"
           exit 1
 
       - name: Switch traffic
@@ -90,25 +92,24 @@ jobs:
       - name: Verify live traffic
         shell: bash
         env:
-          TARGET: ${{ steps.detect.outputs.target }}
-          PORT: ${{ steps.detect.outputs.port }}
+          EXPECTED_VERSION: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
+          EXPECTED="${EXPECTED_VERSION:0:7}"
 
-          for i in {1..5}; do
+          for i in {1..10}; do
             RESPONSE=$(curl -fsS http://127.0.0.1:3000/version) || {
               sleep 2
               continue
             }
 
-            if echo "$RESPONSE" | grep -q "\"version\":\"$TARGET\""; then
-              echo "Traffic successfully switched to $TARGET!"
-              echo "$RESPONSE"
+            if echo "$RESPONSE" | grep -q "\"version\":\"$EXPECTED\""; then
+              echo "Deployment verified: $RESPONSE"
               exit 0
             fi
 
             sleep 2
           done
 
-          echo "Live traffic verification failed!"
+          echo "Live traffic verification failed"
           exit 1

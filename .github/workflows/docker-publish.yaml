@@ -1,21 +1,24 @@
-name: "DOCKER_PIPELINE"
+name: DOCKER_PIPELINE
 
 on:
   workflow_run:
     workflows: ["NODE_PIPELINE"]
-    types:
-      - completed
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
 
 jobs:
   build-and-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout exact CI commit
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -31,4 +34,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/node-pipeline:${{github.sha}}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/node-pipeline:${{ github.event.workflow_run.head_sha }}
+            ${{ secrets.DOCKER_USERNAME }}/node-pipeline:latest
