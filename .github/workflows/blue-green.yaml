@@ -82,6 +82,7 @@ jobs:
           exit 1
 
       - name: Switch traffic
+        id: switch
         shell: bash
         env:
           TARGET: ${{ steps.detect.outputs.target }}
@@ -115,7 +116,7 @@ jobs:
           exit 1
 
       - name: Roll back traffic on failure
-        if: failure()
+        if: ${{ failure() && steps.switch.outcome == 'success' }}
         shell: bash
         env:
           PREVIOUS_ENV: ${{ steps.detect.outputs.live }}

@@ -5,8 +5,8 @@ const app = require('express')();
 const PORT = process.env.PORT || 3000;
 
 app.get('/health', (req, res) => {
-  res.send('OK!');
-  // res.status(500).send("Intentional failure")
+  // res.send('OK!');
+  res.status(500).send("Intentional failure")
 });
 
 app.get('/', (req, res) => {
