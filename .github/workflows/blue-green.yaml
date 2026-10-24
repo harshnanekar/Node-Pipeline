@@ -130,4 +130,4 @@ jobs:
           curl --retry 5 --retry-delay 2 --retry-connrefused \
             --fail http://127.0.0.1:3000/health
 
-          echo "Rollback completed; previous environment is responding."
+          echo "Rollback completed; previous environment is responding now."
