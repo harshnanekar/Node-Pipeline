@@ -115,6 +115,12 @@ jobs:
           echo "Live traffic verification failed"
           exit 1
 
+      - name: Simulate failure after traffic switch
+        if: success()
+        run: |
+          echo "Testing rollback after traffic switch"
+          exit 1
+
       - name: Roll back traffic on failure
         if: ${{ failure() && steps.switch.outcome == 'success' }}
         shell: bash
